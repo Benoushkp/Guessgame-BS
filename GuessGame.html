@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guess Game</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/particles.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap');
+        body {
+            background: radial-gradient(circle, #0d0d0d, #1a1a1a);
+            font-family: 'Orbitron', sans-serif;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-image: url('assets/images/background-image.png');
+            background-size: cover;
+            background-repeat: no-repeat;
+        }
+        .glow-text {
+            text-shadow: 0 0 5px #8B4513, 0 0 10px #8B4513, 0 0 20px #8B4513;
+            transition: 0.3s ease-in-out;
+        }
+        .glow-text:hover {
+            text-shadow: 0 0 10px #8B4513, 0 0 20px #8B4513, 0 0 40px #8B4513;
+        }
+        .glow-border {
+            box-shadow: 0 0 10px #8B4513, 0 0 20px #8B4513;
+            transition: 0.3s ease-in-out;
+        }
+        .glow-border:hover {
+            box-shadow: 0 0 15px #8B4513, 0 0 30px #8B4513;
+        }
+        .glow-button {
+            background: linear-gradient(145deg, #3d1e00, #1a0d00);
+            color: #c79a6b;
+            border: 2px solid #8B4513;
+            box-shadow: 0 0 10px #8B4513;
+            transition: 0.3s;
+        }
+        .glow-button:hover {
+            background: linear-gradient(145deg, #5a2d00, #261200);
+            box-shadow: 0 0 15px #A0522D;
+        }
+        #particles-js {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+        .fade-in {
+            opacity: 0;
+        }
+    </style>
+</head>
+<body class="text-white flex flex-col justify-center items-center h-screen">
+    <div id="particles-js"></div>
+    <div class="text-center p-8 bg-gray-900 rounded-lg shadow-lg max-w-sm glow-border border border-brown-700">
+        <h1 class="text-3xl font-bold mb-4 glow-text">Guess The Number</h1>
+        <p class="text-sm mb-2 glow-text">(Between 1 - 100)</p>
+        <input id="guessInput" type="number" class="w-full p-2 rounded text-black border border-brown-700 hover:border-brown-900" placeholder="Enter your guess">
+        <button id="checkBtn" class="mt-4 px-4 py-2 glow-button rounded">Guess</button>
+        <p id="message" class="mt-4 font-semibold glow-text"></p>
+        <p id="score" class="mt-2 text-sm">Score: <span id="scoreValue">10</span></p>
+        <button id="resetBtn" class="mt-4 px-3 py-1 glow-button rounded hidden">Play Again</button>
+        <div id="bsCreations" class="mt-6 p-4 text-sm glow-text fade-in border border-brown-700 rounded-lg">BS CREATIONS</div>
+    </div>
+    <script>
+        gsap.to("#bsCreations", {duration: 2, opacity: 1, ease: "power2.inOut"});
+        
+        let secretNumber = Math.floor(Math.random() * 100) + 1;
+        let score = 10;
+
+        function checkGuess() {
+            let guess = Number(document.getElementById("guessInput").value);
+            let message = document.getElementById("message");
+            let scoreValue = document.getElementById("scoreValue");
+            let resetBtn = document.getElementById("resetBtn");
+            
+            if (!guess || guess < 1 || guess > 100) {
+                message.textContent = "Enter a valid number!";
+                return;
+            }
+            
+            let diff = Math.abs(guess - secretNumber);
+            let hint = "";
+
+            if (diff === 0) {
+                message.textContent = "🎉 Correct! You Win!";
+                message.classList.add("text-green-400");
+                document.getElementById("checkBtn").disabled = true;
+                resetBtn.classList.remove("hidden");
+            } else {
+                if (diff > 50) hint = "❄️ Very Low";
+                else if (diff > 20) hint = guess > secretNumber ? "🔥 Very High" : "❄️ Very Low";
+                else if (diff > 10) hint = guess > secretNumber ? "📈 High" : "📉 Low";
+                else if (guess === secretNumber - 1 || guess === secretNumber + 1) hint = "⚡ Super Near! One off!";
+                else hint = guess > secretNumber ? "📈 High" : "📉 Low";
+                
+                message.textContent = hint;
+                score--;
+                scoreValue.textContent = score;
+                
+                if (score === 0) {
+                    message.textContent = "💀 Game Over! The number was " + secretNumber;
+                    message.classList.add("text-red-400");
+                    document.getElementById("checkBtn").disabled = true;
+                    resetBtn.classList.remove("hidden");
+                }
+            }
+        }
+
+        document.getElementById("checkBtn").addEventListener("click", checkGuess);
+        document.getElementById("guessInput").addEventListener("keypress", function(event) {
+            if (event.key === "Enter") {
+                checkGuess();
+            }
+        });
+
+        document.getElementById("resetBtn").addEventListener("click", () => {
+            secretNumber = Math.floor(Math.random() * 100) + 1;
+            score = 10;
+            document.getElementById("scoreValue").textContent = score;
+            document.getElementById("message").textContent = "";
+            document.getElementById("guessInput").value = "";
+            document.getElementById("checkBtn").disabled = false;
+            document.getElementById("resetBtn").classList.add("hidden");
+        });
+    </script>
+</body>
+</html>
